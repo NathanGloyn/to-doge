@@ -1,0 +1,9 @@
+{
+  "firebase": "to-doge",
+  "public": ".",
+  "ignore": [
+    "firebase.json",
+    "**/.*",
+    "**/node_modules/**"
+  ]
+}

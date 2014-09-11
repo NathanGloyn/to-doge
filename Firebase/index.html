@@ -1,0 +1,51 @@
+<html>
+    <head>
+        <title>To-Doge</title>
+        <link type="text/css" href="list.css" rel="stylesheet" />
+    </head>
+    <body>
+		<div class="logon">
+			<form>
+				<fieldset>
+					<p><label class="field" for="email">Email:</label><input class="field" type="email" id="email" /></p>
+					<p><label class="field" for="Password">Password:</label><input class="field" type="password" id="password" /></p>
+				</fieldset>
+			</form>
+			<p><button id="submitLogin">Logon</button></p>
+		</div>
+		<div class="tabs">
+			<ul class="tab-links">
+				<li class="active"><a href="#toDo">To Do</a></li>
+				<li><a href="#done">Done</a></li>
+				<li><button id="logout">Logout</button></li>
+			</ul>
+			
+			<div class="tab-content">
+				<div id="toDo" class="tab active">
+					<button id="btnNewItem">New Item</button>
+					<div id="newItemDiv" style="visibility:hidden">
+						<label>Details:</label><input type="text" id="txtNewItem" /><button id="btnAddNewItem">Add</button>
+					</div>
+					<div>
+						<div id="toDoListContainer" class="itemList toDo">
+							<ul id="toDoList"></ul>
+						</div>		
+						<div id="doge" />
+					</div>
+				</div>
+
+				<div id="done" class="tab">
+					<p>Completed Tasks</p>
+					<div id="doneListContainer" class="itemList">
+						<ul id="doneList"></ul>
+					</div>						
+				</div>
+			</div>			
+		</div>
+		
+		<script type="text/javascript" src="//cdn.jsdelivr.net/jquery/2.1.1/jquery.min.js"></script>
+		<script src="https://cdn.firebase.com/js/client/1.0.21/firebase.js"></script>	
+		<script src="https://cdn.firebase.com/js/simple-login/1.6.3/firebase-simple-login.js"></script>
+        <script type="text/javascript" src="list.js"></script>
+    </body>
+</html>
