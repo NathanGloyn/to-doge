@@ -25,7 +25,7 @@ input[type="checkbox"]:checked~label{
 	width:600px;
 	height:600px;
 	overflow:hidden;
-	background-image: url('doge.png');
+	background-image: url('doge.jpg');
 	background-size: cover;	
 }
 

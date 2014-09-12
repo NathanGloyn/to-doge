@@ -21,7 +21,6 @@
 		tabSwitch();
 		addHandlers();
 		loadExistingItems();
-		console.log(listCount);
 	});
 	
 	function loadExistingItems(){
@@ -38,8 +37,6 @@
 	}
 
     function addHandlers () {
-        console.log("Add handlers");
-		
 		$('body').keypress(cancelEntry);
         newItemBtn.click(displayNewItem);
 		newItemTxt.keyup(addItemKeyPress);
@@ -62,14 +59,13 @@
 			var doneItem = listService.markDone(associatedLabel);
 			dogeFn.display();
 			setTimeout(function() {
-				hideDoge;
+				hideDoge();
 				removeItem(doneItem);
 			} , 2000);
 		}
 	}
 	
     function displayNewItem() {
-        console.log("New item clicked");
         newItemDivVisible(true);
         newItemBtn.hide();
         newItemTxt.focus();
@@ -87,7 +83,6 @@
         if (itemText) {
 			var listItem = listService.add(itemText);
 			addElement(listItem, toDoList);
-            console.log("Create new toDoList item");
 			listCount++;
 			hideNewItem();
         }
@@ -107,7 +102,6 @@
     }
 
     function hideNewItem() {
-        console.log("Hide new item entry");
         newItemTxt.val("");
         newItemDivVisible(false);
         newItemBtn.show();

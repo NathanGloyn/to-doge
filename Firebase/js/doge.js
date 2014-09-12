@@ -39,7 +39,7 @@ function Doge($){
 	}
 
 	this.display = function() {
-		$('#doge').toggle();
+		$('#doge').show();
 		dogePos = $('#doge').position();
 		dogeWidth = $('#doge').width();
 		for(var i = 0; i < 50; i++) {

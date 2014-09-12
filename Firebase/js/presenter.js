@@ -24,7 +24,6 @@
 		tabSwitch();
 		addHandlers();
 		loadExistingItems();
-		//console.log(listCount);
 	});
 	
 	function loadExistingItems(){
@@ -41,8 +40,6 @@
 	}
 
     function addHandlers () {
-        console.log("Add handlers");
-		
 		$('body').keypress(cancelEntry);
         newItemBtn.click(displayNewItem);
 		newItemTxt.keyup(addItemKeyPress);
@@ -50,8 +47,6 @@
         $('#doge').click(hideDoge);
 		$('#submitLogin').click(login);
 		$('#logout').click(logout);
-		
-		console.log("Finished adding handlers");
     }
 	
 	function login(event){
@@ -89,14 +84,13 @@
 			var doneItem = listService.markDone(associatedLabel);
 			dogeFn.display();
 			setTimeout(function() {
-				hideDoge;
+				hideDoge();
 				removeItem(doneItem);
 			} , 2000);
 		}
 	}
 	
     function displayNewItem() {
-        console.log("New item clicked");
         newItemDivVisible(true);
         newItemBtn.hide();
         newItemTxt.focus();
@@ -134,7 +128,6 @@
     }
 
     function hideNewItem() {
-        console.log("Hide new item entry");
         newItemTxt.val("");
         newItemDivVisible(false);
         newItemBtn.show();
@@ -205,7 +198,7 @@
 	
 	function hideDoge(){
 		$('#doge div').remove();
-		$('#doge').toggle();
+		$('#doge').hide();
 	}
 	
 	var authClient = new FirebaseSimpleLogin(ref, function (error, user) {

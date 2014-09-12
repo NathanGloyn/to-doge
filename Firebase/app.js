@@ -1,1 +1,382 @@
-function Doge(a){function b(){if(!g.length)return"wow";var a=Math.floor(Math.random()*g.length);return g[a]}function c(){var c=a(".text");c.length>50&&c[0].remove();var g=a("<div />").addClass("text");g.addClass(f[Math.floor(Math.random()*f.length)]),g.addClass(e[Math.floor(Math.random()*f.length)]),g.html(b());var h=550*Math.random()+d.left;h<d.left&&(h+=d.left);var i=600*Math.random()+d.top;g.css("left",h+"px"),g.css("top",i+"px"),g.hide(),a("#doge").append(g),g.fadeIn(600)}var d,e=["red","green","blue","yellow","magenta","cyan"],f=["small","medium","big"],g=["wow","much cool","lol"],h=0;this.display=function(){a("#doge").toggle(),d=a("#doge").position(),h=a("#doge").width();for(var b=0;50>b;b++)c()}}function List(a,b){function c(a){for(var b=0;b<a.length;b++){var c=JSON.parse(a[b],reviver);c.done?f.push(c):e.push(c)}}function d(a,b){for(var c=0;c<b.length;c++)if(b[c].text==a)return b[c];return null}var e=[],f=[];this.storage=a,this.toDo=e,this.done=f,this.add=function(b){var c=new ListItemModel(b);return e.push(c),a.store(c.text,JSON.stringify(c)),c},this.markDone=function(b){var c=new Date,g=d(b,e);return f.push(g),g.done=!0,g.dateDone=c,a.store(g.text,JSON.stringify(g)),g},this.loadItems=function(){var d=b.Deferred();return a.load().then(c).then(function(){d.resolve()}),d.promise()}}function ListItemModel(a){var b=new Date;this.text=a,this.done=!1,this.dateCreated=b,this.dateDone=null}function reviver(a,b){if(""===a)return b;var c;return"string"==typeof b&&(c=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)(Z)$/.exec(b))?new Date(Date.UTC(+c[1],+c[2]-1,+c[3],+c[4],+c[5],+c[6])):b}function Storage(a,b){this.count=0,this.store=function(b,c){var d=a.child("tasks").child(b);d.set(c)},this.load=function(){var c=b.Deferred();return a.child("tasks").once("value",function(a){var b=[],d=a.val();for(property in d){var e=d[property];e=e.substring(0,e.length),b.push(e)}c.resolve(b)},function(){console.log("Loading of tasks failed")}),c.promise()}}!function(a,b){function c(){w.loadItems().then(function(){for(var a=0;a<w.toDo.length;a++)l(w.toDo[a],y),v++;for(var a=0;a<w.done.length;a++)l(w.done[a],b("#doneList"))})}function d(){console.log("Add handlers"),b("body").keypress(m),z.click(i),B.keyup(j),b("#btnAddNewItem").click(k),b("#doge").click(s),b("#submitLogin").click(e),b("#logout").click(f),console.log("Finished adding handlers")}function e(a){a.stopPropagation();var c=b("#email").val(),d=b("#password").val();console.log("Trying to log "+c+" in"),c&&d&&(console.log("Email: "+c+", Password: "+d),C.login("password",{email:c,password:d}))}function f(){console.log("log out called"),C.logout()}function g(a){var b=a?"visible":"hidden";A.css("visibility",b)}function h(a){var c=b(a.target);if(c.is(":checked")){a.stopPropagation();var d=c.attr("id"),e=b("label[for='"+d+"']").text(),f=w.markDone(e);x.display(),setTimeout(function(){q(f)},2e3)}}function i(){console.log("New item clicked"),g(!0),z.hide(),B.focus()}function j(a){13==a.keyCode&&(k(),a.stopPropagation())}function k(){var a=B.val();if(a){var b=w.add(a);l(b,y),console.log("Create new toDoList item"),v++,n()}}function l(a,b){var c=a.done?p(a):o(a);b.append(c)}function m(a){27===a.keyCode&&(n(),a.preventDefault(),a.stopPropagation())}function n(){console.log("Hide new item entry"),B.val(""),g(!1),z.show(),z.focus()}function o(c){var d=b(a.createElement("li")).append(b(a.createElement("input")).attr({id:"item-"+v,type:"checkbox"}).click(h)).append(b(a.createElement("label")).attr({"for":"item-"+v}).text(c.text));return d}function p(c){var d=b(a.createElement("li")).append(b(a.createElement("span")).text(c.text)).append(b(a.createElement("span")).text(c.dateDone.toLocaleString()).addClass("doneDate"));return d}function q(a){var c=b("label:contains('"+a.text+"')").parent();c.remove();var d=p(a);b("#doneList").append(d)}function r(){b(".tabs .tab-links a").on("click",function(a){var c=b(this).attr("href");b(".tabs "+c).show().siblings().hide(),b(this).parent("li").addClass("active").siblings().removeClass("active"),a.preventDefault()})}function s(){b("#doge div").remove(),b("#doge").toggle()}var t={},u=new Firebase("https://to-doge.firebaseio.com"),v=0,w=new List(new Storage(u,b),b),x=new Doge(b),y=b("#toDoList"),z=b("#btnNewItem"),A=b("#newItemDiv"),B=b("#txtNewItem");b(a).ready(function(){b("#doge").toggle(),r(),d(),c()});var C=new FirebaseSimpleLogin(u,function(a,c){return console.log("In callback: Error: "+a+", User: "+c),a?void alert(a):void(c?(console.log("User ID: "+c.id+", Provider: "+c.provider),t=c,console.log("logged in"),b(".tabs").show(),b(".logon").hide()):(console.log("logged out"),b(".tabs").hide(),b(".logon").show()))})}(window.document,window.jQuery);
+(function Presenter(document, $) {
+
+	var toType = function(obj) {
+	  return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
+	};
+
+	var myUser = {};
+	var ref = new Firebase("https://to-doge.firebaseio.com");
+	
+    var listCount = 0;
+	var dogePos;
+	var dogeHidden;
+	var listService = new List(new Storage(ref, $), $);
+	
+	var dogeFn = new Doge($);
+	
+    var toDoList = $('#toDoList'),
+        newItemBtn = $('#btnNewItem'),
+        newItemDiv = $('#newItemDiv'),
+        newItemTxt = $('#txtNewItem');
+
+	$(document).ready(function () {
+		$('#doge').toggle();
+		tabSwitch();
+		addHandlers();
+		loadExistingItems();
+	});
+	
+	function loadExistingItems(){
+		listService.loadItems().then(function (){
+			for(var i =0; i < listService.toDo.length; i++){
+				addElement(listService.toDo[i],toDoList);
+				listCount++;
+			}
+			
+			for(var i = 0; i < listService.done.length; i++) {
+				addElement(listService.done[i],$('#doneList'));
+			}			
+		});
+	}
+
+    function addHandlers () {
+		$('body').keypress(cancelEntry);
+        newItemBtn.click(displayNewItem);
+		newItemTxt.keyup(addItemKeyPress);
+        $('#btnAddNewItem').click(addNewItem);
+        $('#doge').click(hideDoge);
+		$('#submitLogin').click(login);
+		$('#logout').click(logout);
+    }
+	
+	function login(event){
+		event.stopPropagation();
+		var email = $('#email').val();
+		var password = $('#password').val();
+		console.log('Trying to log ' + email + ' in');
+		if(email && password) {
+			console.log('Email: ' + email + ', Password: ' + password);
+			authClient.login('password', {
+			  email: email,
+			  password: password
+			});	
+		}
+	}
+	
+	
+	function logout(){
+		console.log('log out called');
+		authClient.logout();
+	}
+	
+	function newItemDivVisible(isVisible){
+		var visbleSetting = isVisible ? 'visible':'hidden';		
+		newItemDiv.css('visibility', visbleSetting);
+	}
+	
+	function itemChecked(event){
+	
+		var target = $(event.target);
+		if(target.is(':checked')){
+			event.stopPropagation();
+			var id = target.attr("id");
+			var associatedLabel = $("label[for='" + id + "']").text()
+			var doneItem = listService.markDone(associatedLabel);
+			dogeFn.display();
+			setTimeout(function() {
+				hideDoge();
+				removeItem(doneItem);
+			} , 2000);
+		}
+	}
+	
+    function displayNewItem() {
+        newItemDivVisible(true);
+        newItemBtn.hide();
+        newItemTxt.focus();
+    }
+
+    function addItemKeyPress(event) {
+        if (event.keyCode == 13) {
+            addNewItem();
+			event.stopPropagation();
+        }
+    }
+
+    function addNewItem() {
+        var itemText = newItemTxt.val();
+        if (itemText) {
+			var listItem = listService.add(itemText);
+			addElement(listItem, toDoList);
+            console.log("Create new toDoList item");
+			listCount++;
+			hideNewItem();
+        }
+    }
+
+	function addElement(listItem, listToAddTo){
+		var newElement = listItem.done ? createDoneItem(listItem) : createListItemDOM(listItem);
+		listToAddTo.append(newElement);	
+	}
+	
+    function cancelEntry(event) {
+        if (event.keyCode === 27) {
+            hideNewItem();
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    }
+
+    function hideNewItem() {
+        newItemTxt.val("");
+        newItemDivVisible(false);
+        newItemBtn.show();
+        newItemBtn.focus();
+    }
+
+    function getElement(elementId) {
+        return document.getElementById(elementId);
+    }
+
+    function createListItemDOM(listItem) {
+        var newListItem = $(document.createElement("li"))
+								.append(
+									$(document.createElement("input")).attr({
+										 id:	'item-' + listCount
+										,type:	'checkbox'
+									})
+									.click(itemChecked)
+								)
+								.append(
+									$(document.createElement('label')).attr({
+										'for':	'item-' + listCount
+									})
+									.text( listItem.text)
+								)		
+		
+        return newListItem;
+    }
+	
+	function createDoneItem(listItem){
+		var newItem = $(document.createElement("li"))
+							.append(
+								$(document.createElement("span"))
+								.text(listItem.text)
+							)
+							.append(
+								$(document.createElement("span"))
+									.text(listItem.dateDone.toLocaleString())
+									.addClass("doneDate")
+							);
+		return newItem;
+	}
+	
+    function createElement(tag) {
+        return document.createElement(tag);
+    }
+
+	function removeItem(item){
+		var itemToRemove = $("label:contains('" + item.text + "')" ).parent();
+		itemToRemove.remove();
+		var doneItem = createDoneItem(item);
+		$('#doneList').append(doneItem);
+	}
+	
+	function tabSwitch(){
+		$('.tabs .tab-links a').on('click', function(e)  {
+			var currentAttrValue = $(this).attr('href');
+	 
+			// Show/Hide Tabs
+			$('.tabs ' + currentAttrValue).show().siblings().hide();
+	 
+			// Change/remove current tab to active
+			$(this).parent('li').addClass('active').siblings().removeClass('active');
+	 
+			e.preventDefault();
+		});
+	}
+	
+	function hideDoge(){
+		$('#doge div').remove();
+		$('#doge').hide();
+	}
+	
+	var authClient = new FirebaseSimpleLogin(ref, function (error, user) {
+		console.log('In callback: Error: ' + error + ', User: ' + user);
+		if (error) {
+			alert(error);
+			return;
+		}
+		if (user) {
+			// User is already logged in.
+			console.log('User ID: ' + user.id + ', Provider: ' + user.provider);
+			myUser = user;
+			console.log('logged in');
+			$(".tabs").show();
+			$(".logon").hide();
+		} else {
+			// User is logged out.
+			console.log('logged out');
+			$(".tabs").hide();
+			$(".logon").show();
+		}
+	});	
+	
+}(window.document, window.jQuery));
+function List(storage, $) {
+    var items = [];
+	var doneItems = [];
+	
+	this.storage = storage;
+	this.toDo = items;
+	this.done = doneItems;
+	
+    this.add = function (text) {
+        var newItem = new ListItemModel(text);
+		items.push(newItem);
+		storage.store(newItem.text, JSON.stringify(newItem));
+		return newItem;
+    }
+
+	this.markDone = function(text) {
+			var currentDate = new Date();
+			var item = get(text, items);
+			doneItems.push(item);
+			item.done = true;
+			item.dateDone = currentDate;
+			storage.store(item.text, JSON.stringify(item));
+			return item;
+	}
+	
+	this.loadItems = function(areDone) {
+	
+		var deferred = $.Deferred();
+	
+		storage.load().then(populateLists).then(function(){
+			deferred.resolve();
+		});
+		
+		return deferred.promise();
+	}
+	
+	function populateLists(data){
+		
+		for(var i=0; i < data.length ;i++){
+			var item = JSON.parse(data[i], reviver);
+			if(item.done){
+				doneItems.push(item)
+			} else {
+				items.push(item);
+			}
+		}		
+	}
+	
+	function get(text, list){
+		for(var i=0; i < list.length; i++){
+			if(list[i].text == text){
+				return list[i];
+			}
+		}
+		return null;
+	}
+}
+function ListItemModel(text) {
+	var currentDate = new Date();
+    this.text = text;
+	this.done = false;
+	this.dateCreated = currentDate;
+	this.dateDone = null;
+}
+function reviver(key, value){
+	if(key === ""){
+		return value;
+	}
+	
+	var match;
+	if (typeof value === 'string') {
+		match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)(Z)$/.exec(value);
+		if (match) {
+			return  new Date(Date.UTC(+match[1], +match[2] - 1, +match[3], +match[4], +match[5], +match[6]));
+		}
+	}
+	return value;	
+}
+function Storage(ref, $){
+	
+	this.count = 0;
+
+	this.store = function(key, value) {
+		var tasksRef = ref.child("tasks").child(key);
+		
+		tasksRef.set(value);		
+	}
+	
+	this.load = function(){
+		var deferred = $.Deferred();
+	
+		ref.child("tasks").once('value', function(snapshot){
+			var items = [];
+			var data = snapshot.val();
+			for( property in data){
+				var item = data[property];
+				item = item.substring(0, item.length);
+				items.push(item);
+			}
+			deferred.resolve(items);
+			
+		}, function(error){
+			console.log('Loading of tasks failed');
+		});
+		
+		return deferred.promise();
+	}
+}
+function Doge($){
+	var colors = ["red", "green", "blue", "yellow", "magenta", "cyan"];
+	var sizes = ["small", "medium", "big"];
+	var phrases = ["wow", "much cool", "lol"];
+	
+	var dogePos;
+	var dogeWidth = 0;
+	
+	function getPhrase() {
+		if(!phrases.length) {
+			return "wow";
+		}
+		var i = Math.floor(Math.random() * phrases.length);
+		return phrases[i];
+	}	
+	
+	function createText() {
+		var text = $('.text');
+		if(text.length > 50) {
+			text[0].remove();
+		}
+		var div = $('<div />').addClass('text');
+		div.addClass( sizes[Math.floor(Math.random() * sizes.length)] )
+		div.addClass( colors[Math.floor(Math.random() * sizes.length)] )
+		div.html(getPhrase());
+		var leftPosition = (Math.random() * 550) + dogePos.left;
+		if(leftPosition < dogePos.left){
+			leftPosition = leftPosition + dogePos.left;
+		}
+		
+		var topPosition = (Math.random() * 600) + dogePos.top;
+		
+		
+		div.css('left', leftPosition + "px");
+		div.css('top', topPosition + "px");
+		div.hide();
+		$('#doge').append(div);
+		div.fadeIn(600);
+	}
+
+	this.display = function() {
+		$('#doge').show();
+		dogePos = $('#doge').position();
+		dogeWidth = $('#doge').width();
+		for(var i = 0; i < 50; i++) {
+			createText();
+		}			
+	}	
+}
