@@ -1,1 +1,333 @@
-function Doge(a){function b(){if(!g.length)return"wow";var a=Math.floor(Math.random()*g.length);return g[a]}function c(){var c=a(".text");c.length>50&&c[0].remove();var g=a("<div />").addClass("text");g.addClass(f[Math.floor(Math.random()*f.length)]),g.addClass(e[Math.floor(Math.random()*f.length)]),g.html(b());var h=550*Math.random()+d.left;h<d.left&&(h+=d.left);var i=600*Math.random()+d.top;g.css("left",h+"px"),g.css("top",i+"px"),g.hide(),a("#doge").append(g),g.fadeIn(600)}var d,e=["red","green","blue","yellow","magenta","cyan"],f=["small","medium","big"],g=["wow","much cool","lol"],h=0;this.display=function(){a("#doge").toggle(),d=a("#doge").position(),h=a("#doge").width();for(var b=0;50>b;b++)c()}}function List(a){function b(a,b){for(var c=0;c<b.length;c++)if(b[c].text==a)return b[c];return null}var c=[],d=[];this.storage=a,this.toDo=c,this.done=d,this.add=function(b){var d=new ListItemModel(b);return c.push(d),a.store(d.text,JSON.stringify(d)),d},this.markDone=function(e){var f=new Date,g=b(e,c);return d.push(g),g.done=!0,g.dateDone=f,a.store(g.text,JSON.stringify(g)),g},this.loadItems=function(){for(var b=0;b<a.count;b++){var e=JSON.parse(a.load(b),reviver);e.done?d.push(e):c.push(e)}}}function ListItemModel(a){var b=new Date;this.text=a,this.done=!1,this.dateCreated=b,this.dateDone=null}function reviver(a,b){var c;return"string"==typeof b&&(c=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)(Z)$/.exec(b))?new Date(Date.UTC(+c[1],+c[2]-1,+c[3],+c[4],+c[5],+c[6])):b}function Storage(){this.count=localStorage.length,this.store=function(a,b){localStorage.setItem(a,b)},this.key=function(a){return a>localStorage.length-1?null:localStorage.key(a)},this.load=function(a){return localStorage.getItem("number"==typeof a?localStorage.key(a):a)}}!function(a,b){function c(){s.loadItems();for(var a=0;a<s.toDo.length;a++)j(s.toDo[a],u),r++;for(var a=0;a<s.done.length;a++)j(s.done[a],b("#doneList"))}function d(){console.log("Add handlers"),b("body").keypress(k),v.click(g),x.keyup(h),b("#btnAddNewItem").click(i),b("#doge").click(q)}function e(a){var b=a?"visible":"hidden";w.css("visibility",b)}function f(a){var c=b(a.target);if(c.is(":checked")){a.stopPropagation();var d=c.attr("id"),e=b("label[for='"+d+"']").text(),f=s.markDone(e);t.display(),setTimeout(function(){o(f)},2e3)}}function g(){console.log("New item clicked"),e(!0),v.hide(),x.focus()}function h(a){13==a.keyCode&&(i(),a.stopPropagation())}function i(){var a=x.val();if(a){var b=s.add(a);j(b,u),console.log("Create new toDoList item"),r++,l()}}function j(a,b){var c=a.done?n(a):m(a);b.append(c)}function k(a){27===a.keyCode&&(l(),a.preventDefault(),a.stopPropagation())}function l(){console.log("Hide new item entry"),x.val(""),e(!1),v.show(),v.focus()}function m(c){var d=b(a.createElement("li")).append(b(a.createElement("input")).attr({id:"item-"+r,type:"checkbox"}).click(f)).append(b(a.createElement("label")).attr({"for":"item-"+r}).text(c.text));return d}function n(c){var d=b(a.createElement("li")).append(b(a.createElement("span")).text(c.text)).append(b(a.createElement("span")).text(c.dateDone.toLocaleString()).addClass("doneDate"));return d}function o(a){var c=b("label:contains('"+a.text+"')").parent();c.remove();var d=n(a);b("#doneList").append(d)}function p(){b(".tabs .tab-links a").on("click",function(a){var c=b(this).attr("href");b(".tabs "+c).show().siblings().hide(),b(this).parent("li").addClass("active").siblings().removeClass("active"),a.preventDefault()})}function q(){b("#doge div").remove(),b("#doge").toggle()}var r=0,s=new List(new Storage),t=new Doge(b),u=b("#toDoList"),v=b("#btnNewItem"),w=b("#newItemDiv"),x=b("#txtNewItem");b(a).ready(function(){b("#doge").toggle(),p(),d(),c(),console.log(r)})}(window.document,window.jQuery);
+(function Presenter(document, $) {
+
+	var toType = function(obj) {
+	  return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
+	}
+
+    var listCount = 0;
+	var dogePos;
+	var dogeHidden;
+	var listService = new List(new Storage($),$);
+	
+	var dogeFn = new Doge($);
+	
+    var toDoList = $('#toDoList'),
+        newItemBtn = $('#btnNewItem'),
+        newItemDiv = $('#newItemDiv'),
+        newItemTxt = $('#txtNewItem');
+
+	$(document).ready(function () {
+		$('#doge').toggle();
+		tabSwitch();
+		addHandlers();
+		loadExistingItems();
+		console.log(listCount);
+	});
+	
+	function loadExistingItems(){
+		listService.loadItems();
+		
+		for(var i =0; i < listService.toDo.length; i++){
+			addElement(listService.toDo[i],toDoList);
+			listCount++;
+		}
+		
+		for(var i = 0; i < listService.done.length; i++) {
+			addElement(listService.done[i],$('#doneList'));
+		}		
+	}
+
+    function addHandlers () {
+        console.log("Add handlers");
+		
+		$('body').keypress(cancelEntry);
+        newItemBtn.click(displayNewItem);
+		newItemTxt.keyup(addItemKeyPress);
+        $('#btnAddNewItem').click(addNewItem);
+        $('#doge').click(hideDoge);
+    }
+
+	function newItemDivVisible(isVisible){
+		var visbleSetting = isVisible ? 'visible':'hidden';		
+		newItemDiv.css('visibility', visbleSetting);
+	}
+	
+	function itemChecked(event){
+	
+		var target = $(event.target);
+		if(target.is(':checked')){
+			event.stopPropagation();
+			var id = target.attr("id");
+			var associatedLabel = $("label[for='" + id + "']").text()
+			var doneItem = listService.markDone(associatedLabel);
+			dogeFn.display();
+			setTimeout(function() {
+				hideDoge;
+				removeItem(doneItem);
+			} , 2000);
+		}
+	}
+	
+    function displayNewItem() {
+        console.log("New item clicked");
+        newItemDivVisible(true);
+        newItemBtn.hide();
+        newItemTxt.focus();
+    }
+
+    function addItemKeyPress(event) {
+        if (event.keyCode == 13) {
+            addNewItem();
+			event.stopPropagation();
+        }
+    }
+
+    function addNewItem() {
+        var itemText = newItemTxt.val();
+        if (itemText) {
+			var listItem = listService.add(itemText);
+			addElement(listItem, toDoList);
+            console.log("Create new toDoList item");
+			listCount++;
+			hideNewItem();
+        }
+    }
+
+	function addElement(listItem, listToAddTo){
+		var newElement = listItem.done ? createDoneItem(listItem) : createListItemDOM(listItem);
+		listToAddTo.append(newElement);	
+	}
+	
+    function cancelEntry(event) {
+        if (event.keyCode === 27) {
+            hideNewItem();
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    }
+
+    function hideNewItem() {
+        console.log("Hide new item entry");
+        newItemTxt.val("");
+        newItemDivVisible(false);
+        newItemBtn.show();
+        newItemBtn.focus();
+    }
+
+    function getElement(elementId) {
+        return document.getElementById(elementId);
+    }
+
+    function createListItemDOM(listItem) {
+        var newListItem = $(document.createElement("li"))
+								.append(
+									$(document.createElement("input")).attr({
+										 id:	'item-' + listCount
+										,type:	'checkbox'
+									})
+									.click(itemChecked)
+								)
+								.append(
+									$(document.createElement('label')).attr({
+										'for':	'item-' + listCount
+									})
+									.text( listItem.text)
+								)		
+		
+        return newListItem;
+    }
+	
+	function createDoneItem(listItem){
+		var newItem = $(document.createElement("li"))
+							.append(
+								$(document.createElement("span"))
+								.text(listItem.text)
+							)
+							.append(
+								$(document.createElement("span"))
+									.text(listItem.dateDone.toLocaleString())
+									.addClass("doneDate")
+							);
+		return newItem;
+	}
+	
+    function createElement(tag) {
+        return document.createElement(tag);
+    }
+
+	function removeItem(item){
+		var itemToRemove = $("label:contains('" + item.text + "')" ).parent();
+		itemToRemove.remove();
+		var doneItem = createDoneItem(item);
+		$('#doneList').append(doneItem);
+	}
+	
+	function tabSwitch(){
+		$('.tabs .tab-links a').on('click', function(e)  {
+			var currentAttrValue = $(this).attr('href');
+	 
+			// Show/Hide Tabs
+			$('.tabs ' + currentAttrValue).show().siblings().hide();
+	 
+			// Change/remove current tab to active
+			$(this).parent('li').addClass('active').siblings().removeClass('active');
+	 
+			e.preventDefault();
+		});
+	}
+	
+	function hideDoge(){
+		$('#doge div').remove();
+		$('#doge').toggle();
+	}
+	
+}(window.document, window.jQuery));
+function List(storage, $) {
+    var items = [];
+	var doneItems = [];
+	
+	this.storage = storage;
+	this.toDo = items;
+	this.done = doneItems;
+	
+    this.add = function (text) {
+        var newItem = new ListItemModel(text);
+		items.push(newItem);
+		storage.store(newItem.text, JSON.stringify(newItem));
+		return newItem;
+    }
+
+	this.markDone = function(text) {
+			var currentDate = new Date();
+			var item = get(text, items);
+			doneItems.push(item);
+			item.done = true;
+			item.dateDone = currentDate;
+			storage.store(item.text, JSON.stringify(item));
+			return item;
+	}
+	
+	this.loadItems = function(areDone) {
+	
+		var deferred = $.Deferred();
+	
+		storage.load()
+			   .then(populateLists)
+			   .then(function(){
+					deferred.resolve();
+				});
+	
+		return deferred.promise();
+	}
+	
+	function populateLists(data){
+		for(var i=0; i < data.length ;i++){
+			var item = JSON.parse(data[i], reviver);
+			if(item.done){
+				doneItems.push(item);
+			} else {
+				items.push(item);
+			}
+		}		
+	}
+	
+	function get(text, list){
+		for(var i=0; i < list.length; i++){
+			if(list[i].text == text){
+				return list[i];
+			}
+		}
+		return null;
+	}
+}
+function ListItemModel(text) {
+	var currentDate = new Date();
+    this.text = text;
+	this.done = false;
+	this.dateCreated = currentDate;
+	this.dateDone = null;
+}
+function reviver(key, value){
+	var match;
+	if (typeof value === 'string') {
+		match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)(Z)$/.exec(value);
+		if (match) {
+			return  new Date(Date.UTC(+match[1], +match[2] - 1, +match[3], +match[4], +match[5], +match[6]));
+		}
+	}
+	return value;	
+}
+function Storage($){
+	
+	this.store = function(key, value) {
+		localStorage.setItem(key, value);
+	};
+	
+	this.load = function(){
+
+		var deferred = $.Deferred();
+	
+		setTimeout(1,function(){
+			var items=[];
+		
+			for(var i=0; i < localStorage.length; i++){
+				if(index > localStorage.length -1){
+					return null;
+				}
+				items.push(localStorage.key(index));
+			}		
+		});
+		
+		
+		return deferred.promise();
+	};
+}
+function Doge($){
+	var colors = ["red", "green", "blue", "yellow", "magenta", "cyan"];
+	var sizes = ["small", "medium", "big"];
+	var phrases = ["wow", "much cool", "lol"];
+	
+	var dogePos;
+	var dogeWidth = 0;
+	
+	function getPhrase() {
+		if(!phrases.length) {
+			return "wow";
+		}
+		var i = Math.floor(Math.random() * phrases.length);
+		return phrases[i];
+	}	
+	
+	function createText() {
+		var text = $('.text');
+		if(text.length > 50) {
+			text[0].remove();
+		}
+		var div = $('<div />').addClass('text');
+		div.addClass( sizes[Math.floor(Math.random() * sizes.length)] )
+		div.addClass( colors[Math.floor(Math.random() * sizes.length)] )
+		div.html(getPhrase());
+		var leftPosition = (Math.random() * 550) + dogePos.left;
+		if(leftPosition < dogePos.left){
+			leftPosition = leftPosition + dogePos.left;
+		}
+		
+		var topPosition = (Math.random() * 600) + dogePos.top;
+		
+		
+		div.css('left', leftPosition + "px");
+		div.css('top', topPosition + "px");
+		div.hide();
+		$('#doge').append(div);
+		div.fadeIn(600);
+	}
+
+	this.display = function() {
+		$('#doge').toggle();
+		dogePos = $('#doge').position();
+		dogeWidth = $('#doge').width();
+		for(var i = 0; i < 50; i++) {
+			createText();
+		}			
+	}	
+}

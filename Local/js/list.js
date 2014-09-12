@@ -40,7 +40,7 @@ function List(storage, $) {
 		for(var i=0; i < data.length ;i++){
 			var item = JSON.parse(data[i], reviver);
 			if(item.done){
-				doneItems.push(item)
+				doneItems.push(item);
 			} else {
 				items.push(item);
 			}

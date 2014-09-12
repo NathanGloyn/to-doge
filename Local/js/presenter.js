@@ -7,7 +7,7 @@
     var listCount = 0;
 	var dogePos;
 	var dogeHidden;
-	var listService = new List(new Storage());
+	var listService = new List(new Storage($),$);
 	
 	var dogeFn = new Doge($);
 	
@@ -25,16 +25,16 @@
 	});
 	
 	function loadExistingItems(){
-		listService.loadItems();
-		
-		for(var i =0; i < listService.toDo.length; i++){
-			addElement(listService.toDo[i],toDoList);
-			listCount++;
-		}
-		
-		for(var i = 0; i < listService.done.length; i++) {
-			addElement(listService.done[i],$('#doneList'));
-		}		
+		listService.loadItems().then(function (){
+				for(var i =0; i < listService.toDo.length; i++){
+					addElement(listService.toDo[i],toDoList);
+					listCount++;
+				}
+				
+				for(var i = 0; i < listService.done.length; i++) {
+					addElement(listService.done[i],$('#doneList'));
+				}			
+			});	
 	}
 
     function addHandlers () {
