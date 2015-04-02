@@ -80,7 +80,7 @@
 		if(target.is(':checked')){
 			event.stopPropagation();
 			var id = target.attr("id");
-			var associatedLabel = $("label[for='" + id + "']").text()
+			var associatedLabel = id.replace(/item-/gi,''); 
 			var doneItem = listService.markDone(associatedLabel);
 			dogeFn.display();
 			setTimeout(function() {
@@ -108,7 +108,6 @@
         if (itemText) {
 			var listItem = listService.add(itemText);
 			addElement(listItem, toDoList);
-            console.log("Create new toDoList item");
 			listCount++;
 			hideNewItem();
         }
@@ -142,14 +141,14 @@
         var newListItem = $(document.createElement("li"))
 								.append(
 									$(document.createElement("input")).attr({
-										 id:	'item-' + listCount
+										 id:	'item-' + listItem.id
 										,type:	'checkbox'
 									})
 									.click(itemChecked)
 								)
 								.append(
 									$(document.createElement('label')).attr({
-										'for':	'item-' + listCount
+										'for':	'item-' + listItem.id
 									})
 									.text( listItem.text)
 								)		
@@ -176,7 +175,7 @@
     }
 
 	function removeItem(item){
-		var itemToRemove = $("label:contains('" + item.text + "')" ).parent();
+		var itemToRemove = $("label[for='item-" + item.id + "']" ).parent();
 		itemToRemove.remove();
 		var doneItem = createDoneItem(item);
 		$('#doneList').append(doneItem);
@@ -187,7 +186,7 @@
 			var currentAttrValue = $(this).attr('href');
 	 
 			// Show/Hide Tabs
-			$('.tabs ' + currentAttrValue).show().siblings().hide();
+			$('.tab' + currentAttrValue).show().siblings().hide();
 	 
 			// Change/remove current tab to active
 			$(this).parent('li').addClass('active').siblings().removeClass('active');
@@ -198,7 +197,7 @@
 	
 	function hideDoge(){
 		$('#doge div').remove();
-		$('#doge').hide();
+		$('#doge').toggle();
 	}
 	
 	var authClient = new FirebaseSimpleLogin(ref, function (error, user) {
