@@ -1,6 +1,7 @@
-function ListItemModel(text) {
+function ListItemModel(id,text) {
 	var currentDate = new Date();
-    this.text = text;
+    this.id = id;
+	this.text = text;
 	this.done = false;
 	this.dateCreated = currentDate;
 	this.dateDone = null;
