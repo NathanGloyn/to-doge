@@ -13,7 +13,7 @@ function List(storage, $) {
 		storage.store(newItem.id, convert.toStorageFormat(newItem));
 		nextId++;
 		return newItem;
-    }
+    };
 
 	this.markDone = function(id) {
 			var currentDate = new Date();
@@ -23,7 +23,7 @@ function List(storage, $) {
 			item.dateDone = currentDate;
 			storage.store(item.id, convert.toStorageFormat(item));
 			return item;
-	}
+	};
 	
 	this.loadItems = function(areDone) {
 	
@@ -36,7 +36,7 @@ function List(storage, $) {
 				});
 	
 		return deferred.promise();
-	}
+	};
 	
 	function populateLists(data){
 		for(var i=0; i < data.length ;i++){
@@ -65,6 +65,4 @@ function List(storage, $) {
 		}
 		return null;
 	}
-	
-
 }

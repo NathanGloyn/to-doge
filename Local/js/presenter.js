@@ -1,8 +1,8 @@
 (function Presenter(document, $) {
 
 	var toType = function(obj) {
-	  return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
-	}
+	  return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
+	};
 
     var listCount = 0;
 	var dogePos;
@@ -25,15 +25,15 @@
 	
 	function loadExistingItems(){
 		listService.loadItems().then(function (){
-				for(var i =0; i < listService.toDo.length; i++){
-					addElement(listService.toDo[i],toDoList);
-					listCount++;
-				}
-				
-				for(var i = 0; i < listService.done.length; i++) {
-					addElement(listService.done[i],$('#doneList'));
-				}			
-			});	
+			for(var i =0; i < listService.toDo.length; i++){
+				addElement(listService.toDo[i],toDoList);
+				listCount++;
+			}
+			
+			for(var j = 0; j < listService.done.length; j++) {
+				addElement(listService.done[j],$('#doneList'));
+			}			
+		});	
 	}
 
     function addHandlers () {
@@ -116,8 +116,8 @@
         var newListItem = $(document.createElement("li"))
 								.append(
 									$(document.createElement("input")).attr({
-										 id:	'item-' + listItem.id
-										,type:	'checkbox'
+										 id:	'item-' + listItem.id,
+										 type:	'checkbox'
 									})
 									.click(itemChecked)
 								)
@@ -126,7 +126,7 @@
 										'for':	'item-' + listItem.id
 									})
 									.text( listItem.text)
-								)		
+								);		
 		
         return newListItem;
     }

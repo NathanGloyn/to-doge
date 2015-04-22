@@ -13,7 +13,7 @@ function List(storage, $) {
 		storage.store(newItem.id, JSON.stringify(newItem));
 		nextId++;
 		return newItem;
-    }
+    };
 
 	this.markDone = function(id) {
 			var currentDate = new Date();
@@ -23,7 +23,7 @@ function List(storage, $) {
 			item.dateDone = currentDate;
 			storage.store(item.id, JSON.stringify(item));
 			return item;
-	}
+	};
 	
 	this.loadItems = function(areDone) {
 	
@@ -36,7 +36,7 @@ function List(storage, $) {
 				});
 	
 		return deferred.promise();
-	}
+	};
 	
 	function populateLists(data){
 		for(var i=0; i < data.length ;i++){
@@ -56,7 +56,7 @@ function List(storage, $) {
 		// increase nextId by 1 so that it ready for use
 		nextId++;
 	}
-	
+		
 	function get(id, list){
 		for(var i=0; i < list.length; i++){
 			if(list[i].id == id){

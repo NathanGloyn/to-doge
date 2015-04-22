@@ -290,7 +290,7 @@ function List(storage, $) {
 		return null;
 	}
 }
-function ListItemModel(text) {
+function ListItemModel(id,text) {
 	var currentDate = new Date();
     this.id = id;	
     this.text = text;

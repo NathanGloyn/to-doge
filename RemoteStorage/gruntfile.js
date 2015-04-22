@@ -8,19 +8,28 @@ module.exports = function(grunt){
 			}
 		},
 		jshint: {
-			all:['js/*.js']
+			all:['js/presenter.js','js/list.js', 'js/listItemModel.js','js/converter.js','js/storage.js','js/doge.js']
 		},
 		concat: {
 			dist: {
 				src: ['js/remoteStorage.js','js/remoteStorage-Module.js','js/presenter.js','js/list.js', 'js/listItemModel.js','js/converter.js','js/storage.js','js/doge.js'],
-				dest: 'app.js'
-				// dest: '../../../Dropbox/Public/app.js'
+				dest: 'deploy/app.js'
 			}
 		},
+		copy: {
+			main: {
+				files: [{
+					expand: true,
+					src:  ['list.css', 'doge.jpg', 'jquery-2.1.3.min.js','index.html'],
+					dest: 'deploy/'
+				}]
+			}
+		},		
 		connect: {
 			server: {
 				options: {
 					port:3000,
+					base: 'deploy',
 					keepalive: true
 				}
 			}
@@ -31,7 +40,9 @@ module.exports = function(grunt){
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-connect');
+	grunt.loadNpmTasks('grunt-contrib-copy');
 	
+	grunt.registerTask('localBuild',['jshint','concat','copy']);
 	grunt.registerTask('serve',['connect']);
-	grunt.registerTask('localBuild',['concat'])
+	grunt.registerTask('release',['uglify','copy']);
 };
