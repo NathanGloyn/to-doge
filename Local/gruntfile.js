@@ -20,7 +20,7 @@ module.exports = function(grunt){
 			main: {
 				files: [{
 					expand: true,
-					src:  ['list.css', 'doge.jpg', 'jquery-2.1.3.min.js','index.html'],
+					src:  ['list.css', 'doge.jpg', 'jquery-2.1.3.min.js','index.html','app.js'],
 					dest: 'deploy/'
 				}]
 			}
@@ -43,6 +43,6 @@ module.exports = function(grunt){
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	
 	grunt.registerTask('serve',['connect']);
-	grunt.registerTask('localBuild',['jshint','concat','copy'])
+	grunt.registerTask('localBuild',['jshint','concat','copy']);
 	grunt.registerTask('release',['uglify','copy'])
 };
