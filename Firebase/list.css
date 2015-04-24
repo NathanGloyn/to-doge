@@ -93,6 +93,14 @@ li.active a, li.active a:hover {
 }
 
 
+.linkButton { 
+     background: none;
+     border: none;
+     color: #0066ff;
+     text-decoration: underline;
+     cursor: pointer; 
+}
+
 /*----- Content of Tabs -----*/
 .tab-content {
 	padding:15px;

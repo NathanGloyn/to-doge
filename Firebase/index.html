@@ -12,6 +12,41 @@
 				</fieldset>
 			</form>
 			<p><button id="submitLogin">Logon</button></p>
+			<button id="forgottenPassword" class="linkButton">I've forgotten my password</button>&nbsp;
+			<button id="signUp" class="linkButton">Sign up</button>
+		</div>
+		<div id="userSignUp" style="display:none">
+			<form>
+				<fieldset>
+					<p><label class="field" for="email">Email:</label><input class="field" type="email" id="signUpEmail" /></p>
+					<p><label class="field" for="Password">Password:</label><input class="field" type="password" id="signUpPassword" /></p>
+				</fieldset>			
+			</form>
+			<p><button id="submitSignup">Sign Up</button></p>				
+			<br />
+			<span id="signedUp" style="display:none">
+				<p>Your account has been created, please log in</p>
+			</span>
+			<span id="signUpFailed" style="display:none">
+				<p>Couldn't sign you up, sorry'</p>
+			</span>			
+			<p><button id="signUpBack">Back to logon</button></p>
+		</div>
+		<div id="userReset" style="display:none">
+			<form>
+				<fieldset>
+					<p><label class="field" for="email">Email:</label><input class="field" type="email" id="resetEmail" /></p>
+				</fieldset>
+			</form>
+			<p><button id="submitReset">Reset password</button></p>
+			<br />
+			<span id="resetSent" style="display:none">
+				<p>Password reset mail has been sent</p>
+			</span>
+			<span id="resetFailed" style="display:none">
+				<p>Unable to reset password</p>
+			</span>			
+			<p><button id="resetBack">Back to logon</button></p>
 		</div>
 		<div class="tabs" style="display:none">
 			<ul class="tab-links">
@@ -44,7 +79,7 @@
 		</div>
 		
 		<script type="text/javascript" src="//cdn.jsdelivr.net/jquery/2.1.1/jquery.min.js"></script>
-		<script src="https://cdn.firebase.com/js/client/1.0.21/firebase.js"></script>	
+		<script src="https://cdn.firebase.com/js/client/1.0.21/firebase.js"></script>
 		<script src="https://cdn.firebase.com/js/simple-login/1.6.3/firebase-simple-login.js"></script>
         <script type="text/javascript" src="app.js"></script>
     </body>

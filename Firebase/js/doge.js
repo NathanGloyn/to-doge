@@ -20,8 +20,8 @@ function Doge($){
 			text[0].remove();
 		}
 		var div = $('<div />').addClass('text');
-		div.addClass( sizes[Math.floor(Math.random() * sizes.length)] )
-		div.addClass( colors[Math.floor(Math.random() * sizes.length)] )
+		div.addClass( sizes[Math.floor(Math.random() * sizes.length)] );
+		div.addClass( colors[Math.floor(Math.random() * sizes.length)] );
 		div.html(getPhrase());
 		var leftPosition = (Math.random() * 550) + dogePos.left;
 		if(leftPosition < dogePos.left){
@@ -45,5 +45,5 @@ function Doge($){
 		for(var i = 0; i < 50; i++) {
 			createText();
 		}			
-	}	
+	};
 }

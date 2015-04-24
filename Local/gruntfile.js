@@ -16,6 +16,7 @@ module.exports = function(grunt){
 				dest: 'deploy/app.js'
 			}
 		},
+		clean: ['deploy/*'],
 		copy: {
 			main: {
 				files: [{
@@ -41,8 +42,9 @@ module.exports = function(grunt){
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-connect');
 	grunt.loadNpmTasks('grunt-contrib-copy');
+	grunt.loadNpmTasks('grunt-contrib-clean');
 	
 	grunt.registerTask('serve',['connect']);
-	grunt.registerTask('localBuild',['jshint','concat','copy']);
-	grunt.registerTask('release',['uglify','copy'])
+	grunt.registerTask('localBuild',['jshint','concat','clean','copy']);
+	grunt.registerTask('release',['uglify','clean', 'copy'])
 };

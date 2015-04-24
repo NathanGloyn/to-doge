@@ -6,7 +6,7 @@ function Storage(ref, $){
 		var tasksRef = ref.child("tasks").child(key);
 		
 		tasksRef.set(value);		
-	}
+	};
 	
 	this.load = function(){
 		var deferred = $.Deferred();
@@ -14,7 +14,7 @@ function Storage(ref, $){
 		ref.child("tasks").once('value', function(snapshot){
 			var items = [];
 			var data = snapshot.val();
-			for( property in data){
+			for(var property in data){
 				var item = data[property];
 				item = item.substring(0, item.length);
 				items.push(item);
@@ -26,5 +26,5 @@ function Storage(ref, $){
 		});
 		
 		return deferred.promise();
-	}
+	};
 }

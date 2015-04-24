@@ -6,6 +6,7 @@
 
 	var myUser = {};
 	var ref = new Firebase("https://to-doge.firebaseio.com");
+	var userActions = new UserActions(ref);
 	
     var listCount = 0;
 	var dogePos;
@@ -33,8 +34,8 @@
 				listCount++;
 			}
 			
-			for(var i = 0; i < listService.done.length; i++) {
-				addElement(listService.done[i],$('#doneList'));
+			for(var j = 0; j < listService.done.length; j++) {
+				addElement(listService.done[j],$('#doneList'));
 			}			
 		});
 	}
@@ -47,6 +48,12 @@
         $('#doge').click(hideDoge);
 		$('#submitLogin').click(login);
 		$('#logout').click(logout);
+		$('#forgottenPassword').click(displayReset);
+		$('#submitReset').click(resetPassword);
+		$('#resetBack').click(resetBack);
+		$('#signUpBack').click(signUpBack);
+		$('#submitSignup').click(signUp);
+		$('#signUp').click(displaySignUp);
     }
 	
 	function login(event){
@@ -55,18 +62,78 @@
 		var password = $('#password').val();
 		console.log('Trying to log ' + email + ' in');
 		if(email && password) {
-			console.log('Email: ' + email + ', Password: ' + password);
-			authClient.login('password', {
-			  email: email,
-			  password: password
-			});	
+			myUser = userActions.login(email, password);
+			
+			if(myUser){
+			console.log('logged in');
+				$(".tabs").show();
+				$(".logon").hide();				
+			} else {
+				alert("Couldn't log in'");
+			}	
 		}
 	}
 	
 	
 	function logout(){
 		console.log('log out called');
-		authClient.logout();
+		myUser = userActions.logout();
+		$(".tabs").hide();
+		$(".logon").show();		
+	}
+	
+	function displayReset(event){
+		event.stopPropagation();
+		$('#userReset').show();
+		$(".logon").hide();
+	}
+	
+	function resetPassword(event){
+		event.stopPropagation();
+		var email = $('#resetEmail').val;
+		if(email){
+			if(userActions.resetPassword(email)){
+				$('#resetSent').show();
+			} else {
+				$('#resetFailed').show();
+			}
+		}
+	}
+	
+	function resetBack(event){
+		event.stopPropagation();
+		$('#userReset').hide();
+		$('#resetFailed').hide();
+		$('#resetSent').hide();		
+		$(".logon").show();		
+	}
+	
+	function displaySignUp(event){
+		event.stopPropagation();
+		$('#userSignUp').show();
+		$('.logon').hide();
+	}
+	
+	function signUp(event){
+		event.stopPropagation();
+		var email = $('#signUpEmail').val();
+		var password = $('#signUpPassword').val();
+		console.log('Trying to sign up ' + email);
+		if(email && password) {
+			if(userActions.signUp(email, password)){
+				$('#signedUp').show();				
+			} else {
+				$('#signUpFailed').show();				
+			}
+		}		
+	}
+	
+	function signUpBack(event){
+		event.stopPropagation();
+		$('#userSignUp').hide();
+		$('#signUpFailed').hide();
+		$('#signedUp').hide();		
+		$(".logon").show();		
 	}
 	
 	function newItemDivVisible(isVisible){
@@ -141,8 +208,8 @@
         var newListItem = $(document.createElement("li"))
 								.append(
 									$(document.createElement("input")).attr({
-										 id:	'item-' + listItem.id
-										,type:	'checkbox'
+										id:	'item-' + listItem.id,
+										type:	'checkbox'
 									})
 									.click(itemChecked)
 								)
@@ -151,7 +218,7 @@
 										'for':	'item-' + listItem.id
 									})
 									.text( listItem.text)
-								)		
+								);		
 		
         return newListItem;
     }
@@ -200,28 +267,86 @@
 		$('#doge').toggle();
 	}
 	
+}(window.document, window.jQuery));
+function UserActions(ref){
+	
+	var fb = ref;
+	
 	var authClient = new FirebaseSimpleLogin(ref, function (error, user) {
 		console.log('In callback: Error: ' + error + ', User: ' + user);
 		if (error) {
 			alert(error);
-			return;
+			return null;
 		}
 		if (user) {
 			// User is already logged in.
 			console.log('User ID: ' + user.id + ', Provider: ' + user.provider);
-			myUser = user;
-			console.log('logged in');
-			$(".tabs").show();
-			$(".logon").hide();
+			return user;
 		} else {
 			// User is logged out.
 			console.log('logged out');
-			$(".tabs").hide();
-			$(".logon").show();
+			return null;
 		}
-	});	
+	});		
 	
-}(window.document, window.jQuery));
+	this.login = function(email, password){
+		return authClient.login('password', {
+			  email: email,
+			  password: password
+			});	
+	}
+	
+	this.logout = function(){
+		authClient.logout();
+	}
+	
+	this.resetPassword = function (email){
+		fb.resetPassword({
+		  email: email
+		}, function(error) {
+		  if (error) {
+			switch (error.code) {
+			  case "INVALID_USER":
+				console.log("The specified user account does not exist.");
+				break;
+			  default:
+				console.log("Error resetting password:", error);
+			}
+			return false;
+		  } else {
+			console.log("Password reset email sent successfully!");
+			return true;
+		  }
+		});		
+		
+	};
+	
+	this.signUp = function(userEmail, userPassword){
+		
+		fb.createUser({
+		  email: userEmail,
+		  password: userPassword
+		}, function(error, userData) {
+		  if (error) {
+			switch (error.code) {
+			  case "EMAIL_TAKEN":
+				console.log("The new user account cannot be created because the email is already in use.");
+				break;
+			  case "INVALID_EMAIL":
+				console.log("The specified email is not a valid email.");
+				break;
+			  default:
+				console.log("Error creating user:", error);
+			}
+			return false;
+		  } else {
+			console.log("Successfully created user account with uid:", userData.uid);
+			
+			return true;
+		  }
+		});		
+	};
+}
 function List(storage, $) {
     var items = [];
 	var doneItems = [];
@@ -237,7 +362,7 @@ function List(storage, $) {
 		storage.store(newItem.id, JSON.stringify(newItem));
 		nextId++;
 		return newItem;
-    }
+    };
 
 	this.markDone = function(id) {
 			var currentDate = new Date();
@@ -247,7 +372,7 @@ function List(storage, $) {
 			item.dateDone = currentDate;
 			storage.store(item.id, JSON.stringify(item));
 			return item;
-	}
+	};
 	
 	this.loadItems = function(areDone) {
 	
@@ -260,7 +385,7 @@ function List(storage, $) {
 				});
 		
 		return deferred.promise();
-	}
+	};
 	
 	function populateLists(data){
 		for(var i=0; i < data.length ;i++){
@@ -271,7 +396,7 @@ function List(storage, $) {
 			}
 			
 			if(item.done){
-				doneItems.push(item)
+				doneItems.push(item);
 			} else {
 				items.push(item);
 			}
@@ -320,7 +445,7 @@ function Storage(ref, $){
 		var tasksRef = ref.child("tasks").child(key);
 		
 		tasksRef.set(value);		
-	}
+	};
 	
 	this.load = function(){
 		var deferred = $.Deferred();
@@ -328,7 +453,7 @@ function Storage(ref, $){
 		ref.child("tasks").once('value', function(snapshot){
 			var items = [];
 			var data = snapshot.val();
-			for( property in data){
+			for(var property in data){
 				var item = data[property];
 				item = item.substring(0, item.length);
 				items.push(item);
@@ -340,7 +465,7 @@ function Storage(ref, $){
 		});
 		
 		return deferred.promise();
-	}
+	};
 }
 function Doge($){
 	var colors = ["red", "green", "blue", "yellow", "magenta", "cyan"];
@@ -364,8 +489,8 @@ function Doge($){
 			text[0].remove();
 		}
 		var div = $('<div />').addClass('text');
-		div.addClass( sizes[Math.floor(Math.random() * sizes.length)] )
-		div.addClass( colors[Math.floor(Math.random() * sizes.length)] )
+		div.addClass( sizes[Math.floor(Math.random() * sizes.length)] );
+		div.addClass( colors[Math.floor(Math.random() * sizes.length)] );
 		div.html(getPhrase());
 		var leftPosition = (Math.random() * 550) + dogePos.left;
 		if(leftPosition < dogePos.left){
@@ -389,5 +514,5 @@ function Doge($){
 		for(var i = 0; i < 50; i++) {
 			createText();
 		}			
-	}	
+	};
 }

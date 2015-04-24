@@ -6,6 +6,7 @@
 
 	var myUser = {};
 	var ref = new Firebase("https://to-doge.firebaseio.com");
+	var userActions = new UserActions(ref);
 	
     var listCount = 0;
 	var dogePos;
@@ -33,8 +34,8 @@
 				listCount++;
 			}
 			
-			for(var i = 0; i < listService.done.length; i++) {
-				addElement(listService.done[i],$('#doneList'));
+			for(var j = 0; j < listService.done.length; j++) {
+				addElement(listService.done[j],$('#doneList'));
 			}			
 		});
 	}
@@ -47,6 +48,12 @@
         $('#doge').click(hideDoge);
 		$('#submitLogin').click(login);
 		$('#logout').click(logout);
+		$('#forgottenPassword').click(displayReset);
+		$('#submitReset').click(resetPassword);
+		$('#resetBack').click(resetBack);
+		$('#signUpBack').click(signUpBack);
+		$('#submitSignup').click(signUp);
+		$('#signUp').click(displaySignUp);
     }
 	
 	function login(event){
@@ -55,18 +62,78 @@
 		var password = $('#password').val();
 		console.log('Trying to log ' + email + ' in');
 		if(email && password) {
-			console.log('Email: ' + email + ', Password: ' + password);
-			authClient.login('password', {
-			  email: email,
-			  password: password
-			});	
+			myUser = userActions.login(email, password);
+			
+			if(myUser){
+			console.log('logged in');
+				$(".tabs").show();
+				$(".logon").hide();				
+			} else {
+				alert("Couldn't log in'");
+			}	
 		}
 	}
 	
 	
 	function logout(){
 		console.log('log out called');
-		authClient.logout();
+		myUser = userActions.logout();
+		$(".tabs").hide();
+		$(".logon").show();		
+	}
+	
+	function displayReset(event){
+		event.stopPropagation();
+		$('#userReset').show();
+		$(".logon").hide();
+	}
+	
+	function resetPassword(event){
+		event.stopPropagation();
+		var email = $('#resetEmail').val;
+		if(email){
+			if(userActions.resetPassword(email)){
+				$('#resetSent').show();
+			} else {
+				$('#resetFailed').show();
+			}
+		}
+	}
+	
+	function resetBack(event){
+		event.stopPropagation();
+		$('#userReset').hide();
+		$('#resetFailed').hide();
+		$('#resetSent').hide();		
+		$(".logon").show();		
+	}
+	
+	function displaySignUp(event){
+		event.stopPropagation();
+		$('#userSignUp').show();
+		$('.logon').hide();
+	}
+	
+	function signUp(event){
+		event.stopPropagation();
+		var email = $('#signUpEmail').val();
+		var password = $('#signUpPassword').val();
+		console.log('Trying to sign up ' + email);
+		if(email && password) {
+			if(userActions.signUp(email, password)){
+				$('#signedUp').show();				
+			} else {
+				$('#signUpFailed').show();				
+			}
+		}		
+	}
+	
+	function signUpBack(event){
+		event.stopPropagation();
+		$('#userSignUp').hide();
+		$('#signUpFailed').hide();
+		$('#signedUp').hide();		
+		$(".logon").show();		
 	}
 	
 	function newItemDivVisible(isVisible){
@@ -141,8 +208,8 @@
         var newListItem = $(document.createElement("li"))
 								.append(
 									$(document.createElement("input")).attr({
-										 id:	'item-' + listItem.id
-										,type:	'checkbox'
+										id:	'item-' + listItem.id,
+										type:	'checkbox'
 									})
 									.click(itemChecked)
 								)
@@ -151,7 +218,7 @@
 										'for':	'item-' + listItem.id
 									})
 									.text( listItem.text)
-								)		
+								);		
 		
         return newListItem;
     }
@@ -199,26 +266,5 @@
 		$('#doge div').remove();
 		$('#doge').toggle();
 	}
-	
-	var authClient = new FirebaseSimpleLogin(ref, function (error, user) {
-		console.log('In callback: Error: ' + error + ', User: ' + user);
-		if (error) {
-			alert(error);
-			return;
-		}
-		if (user) {
-			// User is already logged in.
-			console.log('User ID: ' + user.id + ', Provider: ' + user.provider);
-			myUser = user;
-			console.log('logged in');
-			$(".tabs").show();
-			$(".logon").hide();
-		} else {
-			// User is logged out.
-			console.log('logged out');
-			$(".tabs").hide();
-			$(".logon").show();
-		}
-	});	
 	
 }(window.document, window.jQuery));
