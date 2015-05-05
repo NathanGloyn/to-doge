@@ -20,15 +20,14 @@ input[type="checkbox"]:checked~label{
 }
 
 #doge{
-	margin:0;
+	margin:0 0 0 250px;
 	padding:0;
-	width:600px;
-	height:600px;
+	width:250px;
+	height:250px;
 	overflow:hidden;
 	background-image: url('doge.jpg');
 	background-size: cover;	
 }
-
 
 /*----- Tabs -----*/
 .tabs {
@@ -93,6 +92,7 @@ li.active a, li.active a:hover {
 	z-index:1;
 	position:absolute;
 	font-family:"Comic Sans MS";
+	font-size: 12pt;
 }
 .red { color:#ff0000; }
 .green { color:#00ff00; }

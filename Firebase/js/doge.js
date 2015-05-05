@@ -23,12 +23,12 @@ function Doge($){
 		div.addClass( sizes[Math.floor(Math.random() * sizes.length)] );
 		div.addClass( colors[Math.floor(Math.random() * sizes.length)] );
 		div.html(getPhrase());
-		var leftPosition = (Math.random() * 550) + dogePos.left;
+		var leftPosition = (Math.random() * 200) + dogePos.left;
 		if(leftPosition < dogePos.left){
 			leftPosition = leftPosition + dogePos.left;
 		}
 		
-		var topPosition = (Math.random() * 600) + dogePos.top;
+		var topPosition = (Math.random() * 250) + dogePos.top;
 		
 		
 		div.css('left', leftPosition + "px");
@@ -39,10 +39,10 @@ function Doge($){
 	}
 
 	this.display = function() {
-		$('#doge').show();
-		dogePos = $('#doge').position();
+		$('#doge').toggle();
+		dogePos = {top:100, left: 260};
 		dogeWidth = $('#doge').width();
-		for(var i = 0; i < 50; i++) {
+		for(var i = 0; i < 25; i++) {
 			createText();
 		}			
 	};

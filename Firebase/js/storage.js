@@ -1,9 +1,9 @@
-function Storage(ref, $){
+function Storage(ref, $, userId){
 	
 	this.count = 0;
 
 	this.store = function(key, value) {
-		var tasksRef = ref.child("tasks").child(key);
+		var tasksRef = ref.child("tasks/" + userId).child(key);
 		
 		tasksRef.set(value);		
 	};
@@ -11,7 +11,7 @@ function Storage(ref, $){
 	this.load = function(){
 		var deferred = $.Deferred();
 	
-		ref.child("tasks").once('value', function(snapshot){
+		ref.child("tasks/" + userId).once('value', function(snapshot){
 			var items = [];
 			var data = snapshot.val();
 			for(var property in data){

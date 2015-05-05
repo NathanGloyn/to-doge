@@ -4,14 +4,15 @@
 	  return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
 	};
 
-	var myUser = {};
+	var myUser = null;
+	var currentUserName='';
 	var ref = new Firebase("https://to-doge.firebaseio.com");
 	var userActions = new UserActions(ref);
 	
     var listCount = 0;
 	var dogePos;
 	var dogeHidden;
-	var listService = new List(new Storage(ref, $), $);
+	var listService;
 	
 	var dogeFn = new Doge($);
 	
@@ -23,8 +24,8 @@
 	$(document).ready(function () {
 		$('#doge').toggle();
 		tabSwitch();
+		userActionEvents();
 		addHandlers();
-		loadExistingItems();
 	});
 	
 	function loadExistingItems(){
@@ -62,22 +63,32 @@
 		var password = $('#password').val();
 		console.log('Trying to log ' + email + ' in');
 		if(email && password) {
-			myUser = userActions.login(email, password);
-			
-			if(myUser){
-			console.log('logged in');
-				$(".tabs").show();
-				$(".logon").hide();				
-			} else {
-				alert("Couldn't log in'");
-			}	
+			userActions.login(email, password)
+						.then(function (data) {
+							var startIndex = data.uid.indexOf(':') + 1;
+							myUser = data.uid.substring(startIndex);
+							$('#userMenu [value="userName"]').text(email);
+							$("#userMenu").val("userName");
+							listService = new List(new Storage(ref, $, myUser), $);
+							loadExistingItems();
+							console.log('logged in');
+							$(".tabs").show();
+							$(".logon").hide();										
+						 })
+						 .fail(function(){
+						 	alert("Couldn't log in'");
+						 });
 		}
 	}
 	
 	
 	function logout(){
 		console.log('log out called');
-		myUser = userActions.logout();
+		myUser = null;
+		toDoList.children().remove();
+		$('#doneList').children().remove();
+		currentUserName = '';
+		userActions.logout();
 		$(".tabs").hide();
 		$(".logon").show();		
 	}
@@ -90,13 +101,17 @@
 	
 	function resetPassword(event){
 		event.stopPropagation();
-		var email = $('#resetEmail').val;
+		var email = $('#resetEmail').val();
 		if(email){
-			if(userActions.resetPassword(email)){
-				$('#resetSent').show();
-			} else {
-				$('#resetFailed').show();
-			}
+			userActions.resetPassword(email).then(function(result){
+				if(result){
+					$('#resetSent').show();
+				} else {
+					$('#resetFailed').show();
+				}
+			}).fail(function() {
+				alert('Failed in calling reset');
+			});
 		}
 	}
 	
@@ -120,11 +135,14 @@
 		var password = $('#signUpPassword').val();
 		console.log('Trying to sign up ' + email);
 		if(email && password) {
-			if(userActions.signUp(email, password)){
-				$('#signedUp').show();				
-			} else {
-				$('#signUpFailed').show();				
-			}
+			userActions.signUp(email, password)
+					   .then(function (result){
+							if(result){
+								$('#signedUp').show();				
+							} else {
+								$('#signUpFailed').show();				
+							}	
+						});
 		}		
 	}
 	
@@ -260,6 +278,99 @@
 	 
 			e.preventDefault();
 		});
+	}
+	
+	function userActionEvents(params) {
+		
+		$('#userMenu').change(function(){
+			var selectedItem = $("#userMenu option:selected").val();
+			
+			switch (selectedItem) {
+				case "logOut":
+					logout();
+					break;
+				case "userProfile":
+					$('#submitChangePassword').show();
+					displayUserProfile();
+					break;
+			}
+		});
+		
+		changePasswordInputHandler();
+		
+		$('#submitChangePassword').on('click',function(e) {
+			e.preventDefault();
+			submitChangePassword();			
+		});
+		
+		$('#backToLists').on('click',function(e){
+			e.preventDefault();	
+			$("#userActions").hide();
+			$(".tabs").show();			
+			$('#backToLists').text("Back");
+			$('#changeResult').text("");
+			$('#changeResultContainer').hide();			
+			$('#oldPassword').text("");
+			$('#newPassword').text("");
+			$('#confirmPassword').text("");
+			$("#userMenu").val("userName");
+			enableChangePassword();
+		});
+	}
+	
+	function displayUserProfile(){
+			$(".tabs").hide();
+			$("#userActions").show();		
+	}
+	
+	function changePasswordInputHandler() {
+		enableChangePassword();
+		
+		$('#newPassword').keyup(function(){
+			if($('#confirmPassword').val() !== ""){
+				enableChangePassword();
+			}
+		});
+		
+		$('#confirmPassword').keyup(function(){
+			if($('#newPassword').val() !== ""){
+				enableChangePassword();
+			}
+		});		
+	}
+	
+	function enableChangePassword(){
+		var newPassword = $('#newPassword').val();
+		var confirmPassword = $('#confirmPassword').val();
+		
+		
+		var buttonDisabled = true;
+		
+		if(newPassword !== "" && confirmPassword !==""){
+			buttonDisabled = newPassword !== confirmPassword;
+		}
+			
+		$('#submitChangePassword').attr('disabled', buttonDisabled);
+	}
+	
+	function submitChangePassword() {
+		
+		var oldPassword = $('#existingPassword').val();
+		var newPassword = $('#newPassword').val();
+				
+		userActions.changePassword(oldPassword, newPassword)
+				   .then(function(data) {
+					  if(data){
+						  $('#changeResult').text(data);
+					  } else {
+						  $('#changeResult').text("Sucessfully change password");
+						  $('#backToLists').text("Back");
+						  $('#submitChangePassword').hide();
+					  } 
+					  
+					  $('#changeResultContainer').show();
+					  
+				   });
 	}
 	
 	function hideDoge(){

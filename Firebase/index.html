@@ -5,7 +5,7 @@
     </head>
     <body>
 		<div class="logon">
-			<form>
+			<form id="logonForm">
 				<fieldset>
 					<p><label class="field" for="email">Email:</label><input class="field" type="email" id="email" /></p>
 					<p><label class="field" for="Password">Password:</label><input class="field" type="password" id="password" /></p>
@@ -28,9 +28,9 @@
 				<p>Your account has been created, please log in</p>
 			</span>
 			<span id="signUpFailed" style="display:none">
-				<p>Couldn't sign you up, sorry'</p>
+				<p>Couldn't sign you up, sorry</p>
 			</span>			
-			<p><button id="signUpBack">Back to logon</button></p>
+			<p><button id="signUpBack" class="linkButton">Back to logon</button></p>
 		</div>
 		<div id="userReset" style="display:none">
 			<form>
@@ -46,13 +46,19 @@
 			<span id="resetFailed" style="display:none">
 				<p>Unable to reset password</p>
 			</span>			
-			<p><button id="resetBack">Back to logon</button></p>
+			<p><button id="resetBack" class="linkButton">Back to logon</button></p>
 		</div>
 		<div class="tabs" style="display:none">
 			<ul class="tab-links">
 				<li class="active"><a href="#toDo">To Do</a></li>
 				<li><a href="#done">Done</a></li>
-				<li><button id="logout">Logout</button></li>
+				<li>
+					<select id="userMenu">
+						<option value="userName" selected="selected"></option>
+						<option value="logOut">Log out</option>
+						<option value="userProfile">User Profile</option>
+					</select>
+				</li>
 			</ul>
 			
 			<div class="tab-content">
@@ -77,10 +83,23 @@
 				</div>
 			</div>			
 		</div>
+		<div id="userActions" style="display:none"> 
+			<p><strong>Change password</strong></p>
+			<form>
+				<fieldset>
+					<p><label class="field" for="existingPassword">Current password:</label><input class="field" type="password" id="existingPassword" /></p>
+					<p><label class="field" for="password">New password:</label><input class="field" type="password" id="newPassword" /></p>
+					<p><label class="field" for="confirmPassword">Confirm password:</label><input class="field" type="password" id="confirmPassword" /></p>
+				</fieldset>			
+			</form>
+			<p id="changeResultContainer" style="display:none">
+				<span id="changeResult"></span>
+			</p>
+			<button class="linkButton" id="backToLists" >Cancel</button>&nbsp;<button id="submitChangePassword" class="linkButton" >Submit</button>
+		</div>
 		
 		<script type="text/javascript" src="//cdn.jsdelivr.net/jquery/2.1.1/jquery.min.js"></script>
-		<script src="https://cdn.firebase.com/js/client/1.0.21/firebase.js"></script>
-		<script src="https://cdn.firebase.com/js/simple-login/1.6.3/firebase-simple-login.js"></script>
+		<script src="https://cdn.firebase.com/js/client/2.2.4/firebase.js"></script>
         <script type="text/javascript" src="app.js"></script>
     </body>
 </html>

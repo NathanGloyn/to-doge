@@ -8,7 +8,7 @@ module.exports = function(grunt){
 			}
 		},
 		jshint: {
-			all:['js/presenter.js','js/list.js', 'js/listItemModel.js','js/converter.js','js/storage.js','js/doge.js']
+			all:['js/presenter.js','js/list.js', 'js/listItemModel.js','js/converter.js','js/storage.js','js/doge.js', 'js/userActions.js']
 		},
 		clean: ['deploy/*'],		
 		concat: {
@@ -34,7 +34,7 @@ module.exports = function(grunt){
 					keepalive: true
 				}
 			}
-		}		
+		}	
 	});
 	
 	grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -43,7 +43,7 @@ module.exports = function(grunt){
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-connect');
 	grunt.loadNpmTasks('grunt-contrib-clean');
-		
+
 	grunt.registerTask('createDeployDir', function(){
 		grunt.file.mkdir('deploy')
 	});

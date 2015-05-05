@@ -1,37 +1,44 @@
 function UserActions(ref){
 	
-	var fb = ref;
-	
-	var authClient = new FirebaseSimpleLogin(ref, function (error, user) {
-		console.log('In callback: Error: ' + error + ', User: ' + user);
-		if (error) {
-			alert(error);
-			return null;
-		}
-		if (user) {
-			// User is already logged in.
-			console.log('User ID: ' + user.id + ', Provider: ' + user.provider);
-			return user;
-		} else {
-			// User is logged out.
-			console.log('logged out');
-			return null;
-		}
-	});		
+	var currentUserEmail = null;
 	
 	this.login = function(email, password){
-		return authClient.login('password', {
-			  email: email,
-			  password: password
-			});	
-	}
+
+		var deferred = $.Deferred();
+
+		ref.authWithPassword({
+		  email    : email,
+		  password : password
+		}, function (error, authData) {
+			console.log('In callback: Error: ' + error + ', User: ' + authData);
+			if (error) {
+				alert(error);
+				deferred.reject(error);
+			}
+			if (authData) {
+				// User is already logged in.
+				console.log('User ID: ' + authData.uid + ', Provider: ' + authData.provider);
+				currentUserEmail = email;
+				deferred.resolve(authData);
+			} else {
+				// User is logged out.
+				console.log('logged out');
+				deferred.reject();
+			}
+		});	
+		
+		return deferred.promise();
+	};
 	
 	this.logout = function(){
-		authClient.logout();
-	}
+		currentUserEmail = null;
+		ref.unauth();
+	};
 	
 	this.resetPassword = function (email){
-		fb.resetPassword({
+		var deferred = $.Deferred();
+
+		ref.resetPassword({
 		  email: email
 		}, function(error) {
 		  if (error) {
@@ -42,18 +49,20 @@ function UserActions(ref){
 			  default:
 				console.log("Error resetting password:", error);
 			}
-			return false;
+			deferred.resolve(false);
 		  } else {
 			console.log("Password reset email sent successfully!");
-			return true;
+			deferred.resolve(true);
 		  }
 		});		
 		
+		return deferred.promise();		
 	};
 	
 	this.signUp = function(userEmail, userPassword){
+		var deferred = $.Deferred();		
 		
-		fb.createUser({
+		ref.createUser({
 		  email: userEmail,
 		  password: userPassword
 		}, function(error, userData) {
@@ -68,12 +77,45 @@ function UserActions(ref){
 			  default:
 				console.log("Error creating user:", error);
 			}
-			return false;
+			deferred.resolve(false);
 		  } else {
 			console.log("Successfully created user account with uid:", userData.uid);
 			
-			return true;
+			deferred.resolve(true);
 		  }
 		});		
+		
+		return deferred.promise();		
+	};
+	
+	this.changePassword = function(oldPassword, newPassword){
+		var deferred = $.Deferred();
+		
+		ref.changePassword({
+			email: currentUserEmail,
+			oldPassword: oldPassword,
+			newPassword: newPassword
+		}, function (error) {
+			var reason="";
+			if(error){
+				switch (error) {
+					case "INVALID_PASSWORD":
+						reason = "existing password is incorrect";		
+						break;
+						
+					case "INVALID_USER":
+						reason = "Unable to find the user details";
+						break;
+						
+					default:
+						reason = "error trying to change password " + error;
+						break;
+				}
+			} 
+			
+			deferred.resolve(reason);			
+		});
+		
+		return deferred.promise();						
 	};
 }
